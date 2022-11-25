@@ -24,10 +24,9 @@ public class HttpGetXIV {
             http = (HttpURLConnection)url.openConnection();
             //  Establecimiento de las cabeceras para el tipo de contenido que vamos a solicitar. En este caso, JSON.
             http.setRequestProperty("Content-Type", "application/json");
-            http.setRequestProperty("Accept", "application/json");
 
             //  El servidor responde positivamente, se sacan los contenidos que buscamos en forma de cadena de texto.
-            if( http.getResponseCode() == HttpURLConnection.HTTP_OK ) { //todo  ESTO TIRA ERROR.
+            if( http.getResponseCode() == HttpURLConnection.HTTP_OK ) {
                 StringBuilder sb = new StringBuilder();
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(http.getInputStream()));

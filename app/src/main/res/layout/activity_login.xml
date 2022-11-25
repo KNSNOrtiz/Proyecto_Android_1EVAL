@@ -165,4 +165,19 @@
         app:layout_constraintStart_toEndOf="@+id/tvRegistro"
         app:layout_constraintTop_toTopOf="@+id/guideline4"
         app:layout_constraintVertical_bias="0.029" />
+
+    <CheckBox
+        android:id="@+id/cbxRecordar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="Recordar usuario"
+        android:textColor="#5A2CAC"
+        android:fontFamily="@font/fjalla_one"
+        app:layout_constraintBottom_toTopOf="@+id/editContrasenaRegistro"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.852"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editUsuarioRegistro"
+        app:layout_constraintVertical_bias="0.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

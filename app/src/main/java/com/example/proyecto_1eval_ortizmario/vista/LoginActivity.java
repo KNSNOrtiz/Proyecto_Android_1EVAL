@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -22,9 +23,10 @@ public class LoginActivity extends AppCompatActivity {
     private EditText editPass;
     private RoundedButton btnLogin;
     private TextView tvRegistrarse;
+    private CheckBox cbxRecordar;
 
     private Usuario usuario = null;
-    public static Sesion sesion;
+    private Sesion sesion;
 
     Toasty toasty = new Toasty(this);
 
@@ -40,16 +42,30 @@ public class LoginActivity extends AppCompatActivity {
         getSupportActionBar().hide();
 
         setContentView(R.layout.activity_login);
-
-
+        sesion = new Sesion(this);
 
         editUsuario = (EditText) findViewById(R.id.editUsuarioRegistro);
         editPass = (EditText) findViewById(R.id.editContrasenaRegistro);
+        cbxRecordar = (CheckBox) findViewById(R.id.cbxRecordar);
         btnLogin = (RoundedButton) findViewById(R.id.btnIniciarSesion);
+
+        if (sesion.getRecordar()){
+            if (sesion.getUsuario() != null && sesion.getUsuario() != ""){
+                editUsuario.setText(sesion.getUsuario());
+                cbxRecordar.setChecked(sesion.getRecordar());
+            }
+        }
+
+
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (Login()){
+                    if (cbxRecordar.isChecked()){
+                        sesion.setUsuario(editUsuario.getText().toString());
+                        sesion.setRecordar(true);
+                    }
                     Intent index = new Intent(LoginActivity.this, IndexActivity.class);
                     startActivity(index);
                 };
@@ -79,8 +95,10 @@ public class LoginActivity extends AppCompatActivity {
         }
         usuario = new Usuario(editUsuario.getText().toString(), editPass.getText().toString());
         res = bd.consultarUsuarioLogin(usuario);
-        if (res = true){
+        if (res == true){
             toasty.successToasty(LoginActivity.this, "Has iniciado sesión como " + usuario.getNombreUsuario() + " . Bienvenido/a.", Toasty.LENGTH_LONG, Toasty.BOTTOM);
+        } else{
+            toasty.warningToasty(LoginActivity.this, "El usuario no existe o las credenciales son incorrectas.", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
         }
         return res;
     }

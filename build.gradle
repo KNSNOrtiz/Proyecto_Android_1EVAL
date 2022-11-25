@@ -4,6 +4,8 @@ buildscript{
         maven {
             url "https://jitpack.io"
         }
+        google()
+        mavenCentral()
     }
 }
 plugins {

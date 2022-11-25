@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 
 public class Sesion {
 
-    private SharedPreferences preferencias;
+    private static SharedPreferences preferencias;
 
     public Sesion(Context context){
         preferencias = PreferenceManager.getDefaultSharedPreferences(context);
@@ -17,5 +17,12 @@ public class Sesion {
     public String getUsuario(){
         String usuario = preferencias.getString("Usuario","");
         return usuario;
+    }
+    public void setRecordar(Boolean recordar){
+        preferencias.edit().putBoolean("RecordarUsuario", recordar).commit();
+    }
+    public boolean getRecordar(){
+        Boolean recordar = preferencias.getBoolean("RecordarUsuario", false);
+        return recordar;
     }
 }

@@ -2,14 +2,39 @@ package com.example.proyecto_1eval_ortizmario.modelo;
 
 public class ClaseJuego {
 
+    private String id;
     private String nombre;
     private String abreviacion;
     private String urlImagen;
+    private String tipo;
+    private String ciudadInicio;
+    private String urlImagenCiudad;
+    private int nivelInicial = 1;
+    private final int nivelMax = 90;
 
-    public ClaseJuego(String nombre, String abreviacion, String urlImagen) {
+
+
+    public ClaseJuego(String id, String nombre, String abreviacion, String urlImagen, String tipo, String ciudadInicio, String urlImagenCiudad, int nivelInicial) {
+        this.id = id;
         this.nombre = nombre;
         this.abreviacion = abreviacion;
         this.urlImagen = urlImagen;
+        this.tipo = tipo;
+        if (ciudadInicio == null | ciudadInicio.isEmpty()){
+            ciudadInicio = "<Sin ciudad inicial>";
+        }
+        this.ciudadInicio = ciudadInicio;
+        this.urlImagenCiudad = urlImagenCiudad;
+        this.nivelInicial = nivelInicial;
+
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -34,5 +59,41 @@ public class ClaseJuego {
 
     public void setUrlImagen(String urlImagen) {
         this.urlImagen = urlImagen;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getCiudadInicio() {
+        return ciudadInicio;
+    }
+
+    public void setCiudadInicio(String ciudadInicio) {
+        this.ciudadInicio = ciudadInicio;
+    }
+
+    public String getUrlImagenCiudad() {
+        return urlImagenCiudad;
+    }
+
+    public void setUrlImagenCiudad(String urlImagenCiudad) {
+        this.urlImagenCiudad = urlImagenCiudad;
+    }
+
+    public int getNivelInicial() {
+        return nivelInicial;
+    }
+
+    public void setNivelInicial(int nivelInicial) {
+        this.nivelInicial = nivelInicial;
+    }
+
+    public int getNivelMax() {
+        return nivelMax;
     }
 }
