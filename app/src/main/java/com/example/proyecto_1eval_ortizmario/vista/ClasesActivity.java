@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.GestureDetector;
@@ -34,6 +35,7 @@ public class ClasesActivity extends AppCompatActivity {
     private ArrayList<ClaseJuego> listaClases = new ArrayList<>();
     private RecyclerView rvClases;
     private RecyclerAdapter_Clases adapter;
+    //  Este índice es importante para abrir el ActionBar correspondiente.
     private int claseSeleccionada = 0;
     private Toasty toasty = new Toasty(this);
     androidx.appcompat.view.ActionMode.Callback actionMenuCallback;
@@ -52,9 +54,9 @@ public class ClasesActivity extends AppCompatActivity {
         rvClases.setLayoutManager(managerLayout);
 
         /*  La clase GestureDetector cumple la función de detectar qué tipo de movimiento estamos haciendo en la pantalla táctil.
-            En este caso, solamente queremos detectar cuándo se ha dado un solo toque en el elemento del RecyclerView para entrar a los detalles,
+            En este caso, solamente queremos detectar cuándo se ha mantenido pulsado en el elemento del RecyclerView para entrar a los detalles,
             por lo que en el constructor le pasamos una instancia del listener propio de su clase (SimpleOnGestureListener) y sobreescribimos
-            el método "OnSingleTapUp".
+            el método "OnSingleTapUp" para detectar toques simples (es obligatorio) y "onLongPress" para los sostenidos.
 
          */
         final GestureDetector mGestureDetector = new GestureDetector(ClasesActivity.this, new GestureDetector.SimpleOnGestureListener() {
@@ -64,8 +66,14 @@ public class ClasesActivity extends AppCompatActivity {
 
             @Override
             public void onLongPress(MotionEvent e) {
+                /*
+                Abrimos el menú en base al item de la lista que hemos seleccionado, detectado mediante
+                coordendas en la pantalla.
+                 */
                 View item = rvClases.findChildViewUnder(e.getX(), e.getY());
+                //  Devuelve la posición del item seleccionado.
                 claseSeleccionada = rvClases.getChildAdapterPosition(item);
+                //  Llamada al actionBar
                 startSupportActionMode(actionMenuCallback);
             }
         });
@@ -88,7 +96,6 @@ public class ClasesActivity extends AppCompatActivity {
                         startActivity(intent);
                         return true;
                     }
-                    //toasty.infoToasty(ClasesActivity.this, "Evento activado desde " + listaClases.get(rvClases.getChildAdapterPosition(item)).getId(), Toasty.LENGTH_SHORT, Toasty.BOTTOM);
 
                 } catch (Exception ex){
                     ex.printStackTrace();
@@ -109,11 +116,22 @@ public class ClasesActivity extends AppCompatActivity {
         });
         rvClases.setAdapter(adapter);
 
+        //  Construcción del ActionBar
         actionMenuCallback = new androidx.appcompat.view.ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                //  Cargamos el menú creado por nosotros desde XML.
                 mode.getMenuInflater().inflate(R.menu.clases_menu, menu);
-                mode.setTitle(listaClases.get(claseSeleccionada).getNombre());
+                try{
+                    //  Para saber qué clase estamos manipulando uso la variable descrita más arriba.
+                    mode.setTitle(listaClases.get(claseSeleccionada).getNombre());
+                } catch (Exception ex){
+                    //  Puede ser que lance una excepción si no termina de cargar, así que queda controlado
+                    //  mediante un simple mensaje de error.
+                    toasty.darkToasty(ClasesActivity.this, "La lista no ha terminado de cargar. Espera antes de entrar al detalle.", Toasty.LENGTH_LONG, Toasty.BOTTOM);
+                    mode.finish();
+                }
+
                 return true;
             }
 
@@ -125,14 +143,25 @@ public class ClasesActivity extends AppCompatActivity {
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 int itemId = item.getItemId();
+                /*
+                FlatDialog es una librería de AndroidArsenal que permite emplear de forma muy sencilla
+                los AlertDialog, permitiéndonos en este caso pedir confirmación por parte del usuario antes
+                de eliminar algún elemento.
+                 */
                 final FlatDialog flatDialog = new FlatDialog(ClasesActivity.this);
                 switch(itemId){
                     case R.id.itemEliminar:
+                        //  CONFIGURACIÓN DEL FLATDIALOG
                         flatDialog.setTitle("Eliminación de registro")
                             .setSubtitle("Se va a eliminar " + listaClases.get(claseSeleccionada).getNombre() + " ¿Seguro/a?")
+                            .setBackgroundColor(Color.parseColor("#2196F3"))
+                            .setFirstButtonColor(Color.parseColor("#3F51B5"))
+                            .setFirstButtonTextColor(Color.parseColor("#FBD30B"))
                             .setFirstButtonText("Aceptar")
+                            .setSecondButtonColor(Color.parseColor("#000000"))
+                            .setSecondButtonTextColor(Color.parseColor("#FFFFFF"))
                             .setSecondButtonText("Cancelar")
-                                .withFirstButtonListner(new View.OnClickListener() {
+                                .withFirstButtonListner(new View.OnClickListener() {    //  Listener del primer botón
                                     @Override
                                     public void onClick(View view) {
                                         borrarClase(claseSeleccionada);
@@ -140,13 +169,13 @@ public class ClasesActivity extends AppCompatActivity {
                                         flatDialog.dismiss();
                                     }
                                 })
-                                .withSecondButtonListner(new View.OnClickListener() {
+                                .withSecondButtonListner(new View.OnClickListener() {   //  Listener del segundo botón
                                     @Override
                                     public void onClick(View view) {
                                         flatDialog.dismiss();
                                     }
                                 })
-                                .show();
+                                .show();    //  Finalmente, se muestra.
                 }
                 return true;
             }
@@ -157,84 +186,24 @@ public class ClasesActivity extends AppCompatActivity {
             }
         };
 
-
-        new getAllClases().execute("GET","");
+        new getAllClases().execute("GET","");   //  Lanzamiento del hilo que carga toda la lista.
 
 
     }
 
+    //  Método que elimina una clase de la lista.
     public void borrarClase(int clas){
         int posicion = clas;
         listaClases.remove(posicion);
+        //  Notificamos al adaptador del RecyclerView que se han alterado los elementos de la lista.
+        //  Conseguimos así que se redimensione y actualice.
         adapter.notifyItemRemoved(posicion);
         adapter.notifyItemRangeChanged(posicion, listaClases.size());
     }
 
-
-
-    private class getClases extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-            String claseString = null;
-            switch (strings[0]){
-                case "GET":
-                    claseString = HttpGetXIV.getClases(strings[1]);
-                    break;
-            }
-            return claseString;
-
-        }
-
-        @Override
-        protected void onPostExecute(String claseString) {
-            ClaseJuego clase = null;
-            try{
-                if (claseString != null) {
-                    JSONObject claseJSON = new JSONObject(claseString);
-
-                    //  EXTRAEMOS TODA LA INFORMACIÓN DE LA CLASE (DEL JUEGO) DESDE EL INICIO.
-                    String id = String.valueOf(claseJSON.getInt("ID"));
-                    String nombre = claseJSON.getString("NameEnglish");
-                    String abreviacion = claseJSON.getString("Abbreviation");
-                    String urlIcono = claseJSON.getString("Icon");
-                    //  Algunas propiedades están dentro de otros JSONObject anidados, así que es necesario declararlos.
-                    JSONObject padreTipo = claseJSON.getJSONObject("ClassJobCategory");
-                    JSONObject padreCiudad;
-                    try{
-                        padreCiudad = claseJSON.getJSONObject("StartingTown");
-                    } catch(JSONException ex){
-                        padreCiudad = null;
-                    }
-
-                    String tipo = padreTipo.getString("Name");
-                    String  ciudadInicio = "";
-                    String urlCiudad= "";
-                    if (padreCiudad != null){
-                        ciudadInicio = padreCiudad.getString("Name");
-                        urlCiudad = padreCiudad.getString("Icon");
-                    }
-
-                    int nivelInicial = claseJSON.getInt("StartingLevel");
-
-
-
-
-                    clase = new ClaseJuego(id, nombre, abreviacion, urlIcono, tipo, ciudadInicio, urlCiudad, nivelInicial);
-                    listaClases.add(clase);
-                    adapter.notifyDataSetChanged();
-
-                }
-
-            } catch(JSONException ex){
-                toasty.dangerToasty(ClasesActivity.this, "No se ha podido crear el objeto Clase.", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
-            }
-        }
-    }
     private class getAllClases extends AsyncTask<String, Void, String>{
 
-
+        //  Código que se ejecuta en el hilo secundario, y en este caso recoge la información de la API.
         @Override
         protected String doInBackground(String... strings) {
             String raizClases = "";
@@ -246,16 +215,30 @@ public class ClasesActivity extends AppCompatActivity {
             return raizClases;
         }
 
+        //  Tratamos los resultados de la API convirtiendo el String en JSON Objects/Arrays.
+        //  Si son correctos, se añaden a la lista de clases del juego.
         @Override
         protected void onPostExecute(String raizClases) {
             try{
                 if (raizClases != null){
-                    JSONObject raiz = new JSONObject(raizClases);
-                    JSONObject paginacion = raiz.getJSONObject("Pagination");
-                    numResultados = paginacion.getInt("Results");
-                    for (int i = 1; i < numResultados; i++) {
-                        new getClases().execute("GET", String.valueOf(i));
+                    ClaseJuego clase = null;
+                    //  JSONArray con todas las clases del juego.
+                    JSONArray resultados = new JSONObject(raizClases).getJSONArray("Results");
+
+                    //  EXTRAEMOS LA INFORMACIÓN BÁSICA DE LA CLASE DEL JUEGO JUNTO A SU ID PARA PODER HACER OTRA PETICIÓN A LA API DESDE LA VISTA DETALLE.
+                    for (int i = 0; i < resultados.length(); i++) {
+                        JSONObject claseJSON = resultados.getJSONObject(i);
+                        String id = String.valueOf(claseJSON.getInt("ID"));
+                        String nombre = claseJSON.getString("Name");
+                        nombre = nombre.substring(0, 1).toUpperCase() + nombre.substring(1);
+                        String urlIcono = claseJSON.getString("Icon");
+                        clase = new ClaseJuego(id, nombre, " ", urlIcono, "", "", "", 1);
+                        if (clase != null){
+                            listaClases.add(clase);
+                            adapter.notifyDataSetChanged();
+                        }
                     }
+
                 }
             } catch (JSONException ex){
 

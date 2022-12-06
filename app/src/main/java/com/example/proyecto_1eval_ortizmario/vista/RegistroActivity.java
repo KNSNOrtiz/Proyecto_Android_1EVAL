@@ -38,10 +38,9 @@ public class RegistroActivity extends AppCompatActivity {
                 RegistrarUsuario(editUsuario.getText().toString(), editPass.getText().toString());
             }
         });
-
-
     }
 
+    //  Mediante este método controlamos los valores que el usuario puede introducir a la hora de crear su usuario, y si es posible su creación.
     private int ValidarUsuario(String usuario, String pass){
         /*  Debe empezar y terminar con un caracter alfanumérico, pudiendo contener ciertos caracteres especiales (puntos, guiones y barras bajas) pero no más de uno seguido.
             La longitud del nombre de usuario estará entre 5 y 20 caracteres (Caracter inicial, cuerpo[3-18 long.], y  caracter final).
@@ -56,6 +55,7 @@ public class RegistroActivity extends AppCompatActivity {
             toasty.dangerToasty(this,"Debes introducir un usuario y contraseña.", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
             return -1;
         }
+        //  COMPROBACIÓN DE LAS EXPRESIONES REGULARES
         if (!usuario.matches(patronUsuario)){
             toasty.dangerToasty(this,"Nombre de usuario inválido. (Longitud entre 5-20 caracteres, sin caracteres especiales salvo [._-] ni espacios en blanco.)", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
             return -1;
@@ -64,13 +64,14 @@ public class RegistroActivity extends AppCompatActivity {
             toasty.dangerToasty(this,"Contraseña inválida. (Mínimo 6 caracteres alfanuméricos o caracteres especiales, sin espacios en blanco.)", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
             return -1;
         }
+        //  Consulta a la BD para ver si este usuario existe.
         if (bd.consultarUsuarioRegistro(usuario)){
             toasty.dangerToasty(this,"El nombre de usuario no está disponible porque ya existe.", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
             return -1;
         }
         return 0;
     }
-
+    //  Inserción a la BD del usuario nuevo.
     private void RegistrarUsuario(String nombreUsuario, String pass){
         Usuario usuario = null;
         long res = -1;

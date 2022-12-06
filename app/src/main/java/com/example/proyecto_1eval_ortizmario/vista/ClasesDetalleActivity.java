@@ -1,7 +1,9 @@
 package com.example.proyecto_1eval_ortizmario.vista;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -21,7 +23,6 @@ public class ClasesDetalleActivity extends AppCompatActivity {
 
     private ImageView imgIcono, imgCiudadInicial;
     private TextView tvNombre, tvAbreviacion, tvTipo, tvCiudadInicial, tvNivelMax,tvNivelInicial;
-    private ClaseJuego claseMostrar;
     private Toasty toasty = new Toasty(this);
 
 
@@ -39,7 +40,10 @@ public class ClasesDetalleActivity extends AppCompatActivity {
         tvNivelInicial = (TextView)  findViewById(R.id.tvDetalleNivelInicial);
         tvNivelMax = (TextView) findViewById(R.id.tvDetalleNivelMax);
         imgCiudadInicial = (ImageView) findViewById(R.id.imgDetalleCiudad);
+        //  Gracias al ID obtenido del anterior Activity podemos consultar detalles del elemento
+        //  seleccionado.
         String id = getIntent().getExtras().getString("id");
+
         new getClases().execute("GET", id);
 
     }
@@ -65,7 +69,7 @@ public class ClasesDetalleActivity extends AppCompatActivity {
                 if (claseString != null) {
                     JSONObject claseJSON = new JSONObject(claseString);
 
-                    //  EXTRAEMOS TODA LA INFORMACIÓN DE LA CLASE (DEL JUEGO) DESDE EL INICIO.
+                    //  EXTRAEMOS TODA LA INFORMACIÓN DE LA CLASE.
                     String id = String.valueOf(claseJSON.getInt("ClassJobParentTargetID"));
                     String nombre = claseJSON.getString("NameEnglish");
                     String abreviacion = claseJSON.getString("Abbreviation");
@@ -73,6 +77,7 @@ public class ClasesDetalleActivity extends AppCompatActivity {
                     //  Algunas propiedades están dentro de otros JSONObject anidados, así que es necesario declararlos.
                     JSONObject padreTipo = claseJSON.getJSONObject("ClassJobCategory");
                     JSONObject padreCiudad;
+                    //  Algunos campos no necesariamente tendrán valores asignados, así que para evitar errores los tratamos desde aquí.
                     try{
                         padreCiudad = claseJSON.getJSONObject("StartingTown");
                     } catch(JSONException ex){
@@ -90,28 +95,32 @@ public class ClasesDetalleActivity extends AppCompatActivity {
 
 
                     clase = new ClaseJuego(id, nombre, abreviacion, urlIcono, tipo, ciudadInicio, urlCiudad, nivelInicial);
-                    claseMostrar = clase;
-                    if (claseMostrar != null){
+
+                    if (clase != null){
+                        CircularProgressDrawable progressDrawable = new CircularProgressDrawable(ClasesDetalleActivity.this);
+                        progressDrawable.setStrokeWidth(20f);
+                        progressDrawable.setStyle(CircularProgressDrawable.LARGE);
+                        progressDrawable.setCenterRadius(5f);
+                        progressDrawable.setBackgroundColor(Color.CYAN);
+                        progressDrawable.start();
+
                         Glide.with(ClasesDetalleActivity.this)
-                                .load("https://xivapi.com/" + claseMostrar.getUrlImagen())
-                                .placeholder(R.mipmap.img_placeholder_round)
+                                .load("https://xivapi.com/" + clase.getUrlImagen())
+                                .placeholder(progressDrawable)
                                 .error(R.mipmap.img_placeholder_round)
                                 .into(imgIcono);
-                        tvNombre.setText(claseMostrar.getNombre());
-                        tvAbreviacion.setText(claseMostrar.getAbreviacion());
-                        tvTipo.setText(claseMostrar.getTipo());
-                        tvCiudadInicial.setText(claseMostrar.getCiudadInicio());
-                        tvNivelInicial.setText(String.valueOf(claseMostrar.getNivelInicial()));
-                        tvNivelMax.setText(String.valueOf(claseMostrar.getNivelMax()));
+                        tvNombre.setText(clase.getNombre());
+                        tvAbreviacion.setText(clase.getAbreviacion());
+                        tvTipo.setText(clase.getTipo());
+                        tvCiudadInicial.setText(clase.getCiudadInicio());
+                        tvNivelInicial.setText(String.valueOf(clase.getNivelInicial()));
+                        tvNivelMax.setText(String.valueOf(clase.getNivelMax()));
                         Glide.with(ClasesDetalleActivity.this)
-                                .load("https://xivapi.com/" + claseMostrar.getUrlImagenCiudad())
-                                .placeholder(R.mipmap.img_placeholder_round)
+                                .load("https://xivapi.com/" + clase.getUrlImagenCiudad())
+                                .placeholder(progressDrawable)
                                 .error(R.mipmap.img_placeholder_round)
                                 .into(imgCiudadInicial);
                     }
-
-
-
                 }
 
             } catch(JSONException ex){

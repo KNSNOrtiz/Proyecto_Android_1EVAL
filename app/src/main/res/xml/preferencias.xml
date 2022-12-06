@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Datos del personaje">
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:key="nombrePersonaje"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Nombre del personaje" />
+        <EditTextPreference
+            android:defaultValue="Louisoix"
+            android:key="servidorPersonaje"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Servidor" />
+    </PreferenceCategory>
+</PreferenceScreen>

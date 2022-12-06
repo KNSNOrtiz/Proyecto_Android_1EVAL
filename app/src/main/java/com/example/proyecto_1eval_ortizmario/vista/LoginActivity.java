@@ -21,6 +21,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText editUsuario;
     private EditText editPass;
+    //  RoundedButton es un elemento de tipo Button importado desde AndroidArsenal para hacer botones redondeados.
     private RoundedButton btnLogin;
     private TextView tvRegistrarse;
     private CheckBox cbxRecordar;
@@ -29,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private Sesion sesion;
 
     Toasty toasty = new Toasty(this);
-
+    //  Cargamos la instancia de la BD.
     DBA bd = DBA.getInstance(this);
 
 
@@ -38,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // El código a continuación oculta el ActionBar con el título
+        // La línea a continuación oculta el ActionBar con el título del proyecto.
         getSupportActionBar().hide();
 
         setContentView(R.layout.activity_login);
@@ -56,15 +57,17 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-
-
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //  Gestionamos las preferencias del Login según tenga éxito o no, y según si se quieren guardar o viceversa.
                 if (Login()){
                     if (cbxRecordar.isChecked()){
                         sesion.setUsuario(editUsuario.getText().toString());
                         sesion.setRecordar(true);
+                    } else{
+                        sesion.setUsuario("");
+                        sesion.setRecordar(false);
                     }
                     Intent index = new Intent(LoginActivity.this, IndexActivity.class);
                     startActivity(index);
@@ -93,7 +96,8 @@ public class LoginActivity extends AppCompatActivity {
             toasty.warningToasty(LoginActivity.this, "Nombre de usuario/Contraseña vacíos.", Toasty.LENGTH_SHORT, Toasty.BOTTOM);
             return res;
         }
-        usuario = new Usuario(editUsuario.getText().toString(), editPass.getText().toString());
+        usuario = new Usuario(editUsuario.getText().toString().trim(), editPass.getText().toString().trim());
+        //  Lanza una consulta a la BD para ver si existe.
         res = bd.consultarUsuarioLogin(usuario);
         if (res == true){
             toasty.successToasty(LoginActivity.this, "Has iniciado sesión como " + usuario.getNombreUsuario() + " . Bienvenido/a.", Toasty.LENGTH_LONG, Toasty.BOTTOM);

@@ -1,5 +1,6 @@
 package com.example.proyecto_1eval_ortizmario.modelo;
 
+//  Modelo de datos para las clases jugables dentro de Final Fantasy XIV, según la API.
 public class ClaseJuego {
 
     private String id;
@@ -9,7 +10,7 @@ public class ClaseJuego {
     private String tipo;
     private String ciudadInicio;
     private String urlImagenCiudad;
-    private int nivelInicial = 1;
+    private int nivelInicial = 1;   //  No todas las clases tienen el mismo nivel inicial, pero sí el máximo.
     private final int nivelMax = 90;
 
 
@@ -20,6 +21,7 @@ public class ClaseJuego {
         this.abreviacion = abreviacion;
         this.urlImagen = urlImagen;
         this.tipo = tipo;
+        //  No todas las clases tendrán una ciudad de inicio, así que rellenamos ese hueco.
         if (ciudadInicio == null | ciudadInicio.isEmpty()){
             ciudadInicio = "<Sin ciudad inicial>";
         }

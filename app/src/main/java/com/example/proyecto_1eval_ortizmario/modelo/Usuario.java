@@ -1,5 +1,6 @@
 package com.example.proyecto_1eval_ortizmario.modelo;
 
+//  Modelo básico de usuarios para introducir en la BD de SQLite.
 public class Usuario {
     private String nombreUsuario;
     private String password;

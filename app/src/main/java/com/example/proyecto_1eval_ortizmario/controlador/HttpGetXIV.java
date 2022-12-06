@@ -9,6 +9,7 @@ public class HttpGetXIV {
 
     //  Para sacar los contenidos de esta categoría, indico la URL de la que se van a empezar a sacar.
     private static final String URL_RAIZ_CLASES = "https://xivapi.com/classjob/";
+    private static final String URL_RAIZ_PERSONAJES = "https://xivapi.com/character/";
 
     //  Con este método vamos a obtener las clases del juego, en base a su constante correspondiente y el filtro o endpoint.
     public static String getClases(String endpoint){
@@ -27,13 +28,16 @@ public class HttpGetXIV {
 
             //  El servidor responde positivamente, se sacan los contenidos que buscamos en forma de cadena de texto.
             if( http.getResponseCode() == HttpURLConnection.HTTP_OK ) {
+                //  Se crea una cadena de texto con los datos recibidos de la consulta a la API.
                 StringBuilder sb = new StringBuilder();
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(http.getInputStream()));
                 String line;
+                //  Se leen todas las líneas del inputStream recibido de la API.
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
                 }
+                //  Se convierte a String y se cierra el flujo.
                 contenido = sb.toString();
                 reader.close();
             }
@@ -49,5 +53,42 @@ public class HttpGetXIV {
         }
         return contenido;
     }
+
+    //  Mismo método que antes pero con algunas variaciones.
+    public static String getPersonaje(String endpoint){
+
+        HttpURLConnection http = null;
+
+        String contenido = null;
+
+        try {
+            URL url = new URL( URL_RAIZ_PERSONAJES + endpoint );
+
+            http = (HttpURLConnection)url.openConnection();
+            http.setRequestProperty("Content-Type", "application/json");
+
+            if( http.getResponseCode() == HttpURLConnection.HTTP_OK ) {
+                StringBuilder sb = new StringBuilder();
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(http.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+                contenido = sb.toString();
+                reader.close();
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            if( http != null ){
+                http.disconnect();
+            }
+        }
+        return contenido;
+    }
+
 
 }

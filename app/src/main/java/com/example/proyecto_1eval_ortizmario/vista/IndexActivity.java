@@ -14,19 +14,21 @@ public class IndexActivity extends AppCompatActivity {
 
     private CardView cvClases;
     private CardView cvMazmorras;
-    Toasty toasty = new Toasty(this);
 
     private View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            Intent intent;
+            //  Menú principal de la aplicación. Según el CardView seleciconado, se lanzará
+            // un Activity u otro.
             switch (view.getId()){
-                case R.id.cviewClases:
-                    toasty.infoToasty(IndexActivity.this, "Has elegido la categoría \"Clases\"", Toasty.LENGTH_SHORT, Toasty.TOP);
-                    Intent intent = new Intent(IndexActivity.this, ClasesActivity.class);
+                case R.id.cviewPersonaje:
+                    intent = new Intent(IndexActivity.this, PersonajeActivity.class);
                     startActivity(intent);
                     break;
-                case R.id.cviewMazmorras:
-                    toasty.infoToasty(IndexActivity.this, "Has elegido la categoría \"Mazmorras\"", Toasty.LENGTH_SHORT, Toasty.TOP);
+                case R.id.cviewClases:
+                    intent = new Intent(IndexActivity.this, ClasesActivity.class);
+                    startActivity(intent);
                     break;
             }
         }
@@ -36,14 +38,16 @@ public class IndexActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
         setContentView(R.layout.activity_index);
+        getSupportActionBar().hide();   //  Este método oculta el ActionBar por defecto.
 
-        cvMazmorras = (CardView) findViewById(R.id.cviewMazmorras);
+        cvMazmorras = (CardView) findViewById(R.id.cviewPersonaje);
         cvClases = (CardView) findViewById(R.id.cviewClases);
 
         cvMazmorras.setOnClickListener(listener);
         cvClases.setOnClickListener(listener);
 
     }
+
+
 }
